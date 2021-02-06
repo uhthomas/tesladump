@@ -21,7 +21,7 @@ func newMongo(ctx context.Context, uri string) (*mongo.Collection, error) {
 	}
 
 	{
-		ctx, cancel := context.WithTimeout(2 * time.Second)
+		ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 		defer cancel()
 
 		if err := c.Ping(ctx, readpref.Primary()); err != nil {
