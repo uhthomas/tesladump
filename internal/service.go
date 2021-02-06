@@ -1,11 +1,9 @@
 package internal
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -32,7 +30,7 @@ func NewService(ctx context.Context, opts ...Option) (*Service, error) {
 }
 
 func (s Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), 40*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 	defer cancel()
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -73,17 +71,23 @@ func (s Service) dump(ctx context.Context, url string, out interface{}) error {
 		return fmt.Errorf("do: %w", err)
 	}
 	defer res.Body.Close()
-	if out == nil {
-		out = &json.RawMessage{}
-	}
-	var buf bytes.Buffer
-	if err := json.NewDecoder(io.TeeReader(res.Body, &buf)).Decode(out); err != nil {
+	var m json.RawMessage
+	if err := json.NewDecoder(res.Body).Decode(&m); err != nil {
 		return fmt.Errorf("decode: %w", err)
 	}
-	if _, err := s.mc.InsertOne(ctx, bson.D{
-		{Key: "url", Value: res.Request.URL.String()},
-		{Key: "statusCode", Value: res.StatusCode},
-		{Key: "response", Value: bson.Raw(buf.Bytes())},
+	var doc interface{}
+	if err := json.Unmarshal(m, &doc); err != nil {
+		return fmt.Errorf("json unmarshal doc: %w", err)
+	}
+	if out != nil {
+		if err := json.Unmarshal(m, out); err != nil {
+			return fmt.Errorf("json unmarshal out: %w", err)
+		}
+	}
+	if _, err := s.mc.InsertOne(ctx, bson.M{
+		"url":        res.Request.URL.String(),
+		"statusCode": res.StatusCode,
+		"response":   doc,
 	}); err != nil {
 		return fmt.Errorf("insert one: %w", err)
 	}
