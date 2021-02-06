@@ -31,7 +31,7 @@ func NewService(ctx context.Context, opts ...Option) (*Service, error) {
 }
 
 func (s Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 40*time.Second)
 	defer cancel()
 
 	g, ctx := errgroup.WithContext(ctx)
