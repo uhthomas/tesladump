@@ -8,6 +8,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func newMongo(ctx context.Context, uri string) (*mongo.Collection, error) {
@@ -18,6 +19,16 @@ func newMongo(ctx context.Context, uri string) (*mongo.Collection, error) {
 	if err != nil {
 		return nil, fmt.Errorf("mongo connect: %w", err)
 	}
+
+	{
+		ctx, cancel := context.WithTimeout(2 * time.Second)
+		defer cancel()
+
+		if err := c.Ping(ctx, readpref.Primary()); err != nil {
+			return nil, fmt.Errorf("ping: %w", err)
+		}
+	}
+
 	u, err := url.Parse(uri)
 	if err != nil {
 		return nil, err
