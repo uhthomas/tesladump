@@ -20,13 +20,8 @@ func newMongo(ctx context.Context, uri string) (*mongo.Collection, error) {
 		return nil, fmt.Errorf("mongo connect: %w", err)
 	}
 
-	{
-		ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-		defer cancel()
-
-		if err := c.Ping(ctx, readpref.Primary()); err != nil {
-			return nil, fmt.Errorf("ping: %w", err)
-		}
+	if err := c.Ping(ctx, readpref.Primary()); err != nil {
+		return nil, fmt.Errorf("ping: %w", err)
 	}
 
 	u, err := url.Parse(uri)
