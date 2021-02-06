@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "internal",
+    srcs = [
+        "listenandserve.go",
+        "mongo.go",
+        "oauth2.go",
+        "option.go",
+        "service.go",
+    ],
+    importpath = "github.com/uhthomas/tesladump/internal",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/x/context",
+        "@org_golang_x_oauth2//:oauth2",
+        "@org_golang_x_sync//errgroup",
+        "@org_mongodb_go_mongo_driver//mongo",
+        "@org_mongodb_go_mongo_driver//mongo/options",
+    ],
+)
+
+go_test(
+    name = "internal_test",
+    srcs = ["service_test.go"],
+    embed = [":internal"],
+)

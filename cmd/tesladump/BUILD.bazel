@@ -1,0 +1,47 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "tesladump_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/uhthomas/tesladump/cmd/tesladump",
+    visibility = ["//visibility:private"],
+    deps = ["//internal"],
+)
+
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+
+go_image(
+    name = "tesladump",
+    embed = [":tesladump_lib"],
+    visibility = ["//visibility:public"],
+)
+
+load("@io_bazel_rules_docker//docker:docker.bzl", "docker_push")
+
+docker_push(
+    name = "push",
+    image = ":tesladump",
+    registry = "ghcr.io",
+    repository = "uhthomas/tesladump",
+    tag = "{STABLE_GIT_COMMIT}",
+)
+
+load("@io_bazel_rules_docker//docker:docker.bzl", "docker_bundle")
+
+docker_bundle(
+    name = "bundle",
+    images = {
+        "ghcr.io/uhthomas/tesladump:latest": ":tesladump",
+        "ghcr.io/uhthomas/tesladump:{STABLE_GIT_REF}": ":tesladump",
+    },
+)
+
+load("@io_bazel_rules_docker//contrib:push-all.bzl", "docker_push")
+
+docker_push(
+    name = "push_tag",
+    bundle = ":bundle",
+    # Pushing layers concurrently sometimes fails.
+    # See GitHub support ticket 885486.
+    sequential = True,
+)
