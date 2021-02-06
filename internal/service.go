@@ -48,7 +48,7 @@ func (s Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		for _, v := range out.Response {
 			g.Go(func() error {
 				return s.dump(ctx,
-					"https://owner-api.teslamotors.com/api/1/vehicles/"+strconv.FormatUint(v.ID, 10)+"vehicle_data",
+					"https://owner-api.teslamotors.com/api/1/vehicles/"+strconv.FormatUint(v.ID, 10)+"/vehicle_data",
 					nil,
 				)
 			})

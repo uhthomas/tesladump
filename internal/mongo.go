@@ -28,5 +28,5 @@ func newMongo(ctx context.Context, uri string) (*mongo.Collection, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c.Database(u.Path).Collection("responses"), nil
+	return c.Database(u.Path[1:]).Collection("responses"), nil
 }
