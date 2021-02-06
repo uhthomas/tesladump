@@ -12,7 +12,7 @@ import (
 
 func Main(ctx context.Context) error {
 	addr := flag.String("addr", ":80", "listen address")
-	oauth2ConfigPath := flag.String("client-secret-path", "oauth2_config.json", "Tesla OAuth2 config file")
+	oauth2ConfigPath := flag.String("oauth2-config-path", "oauth2_config.json", "Tesla OAuth2 config file")
 	oauth2TokenPath := flag.String("oauth2-token-path", "oauth2_token.json", "Tesla OAuth2 token file")
 	muri := flag.String("mongo-uri", "", "Mongo URI")
 	flag.Parse()
