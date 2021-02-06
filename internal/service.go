@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -56,6 +57,7 @@ func (s Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err := g.Wait(); err != nil {
+		log.Printf("dump: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
