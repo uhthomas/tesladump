@@ -15,6 +15,7 @@ go_library(
         "//internal/x/context",
         "@org_golang_x_oauth2//:oauth2",
         "@org_golang_x_sync//errgroup",
+        "@org_mongodb_go_mongo_driver//bson",
         "@org_mongodb_go_mongo_driver//mongo",
         "@org_mongodb_go_mongo_driver//mongo/options",
         "@org_mongodb_go_mongo_driver//mongo/readpref",

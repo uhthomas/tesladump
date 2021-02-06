@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/sync/errgroup"
 )
@@ -79,11 +80,11 @@ func (s Service) dump(ctx context.Context, url string, out interface{}) error {
 	if err := json.NewDecoder(io.TeeReader(res.Body, &buf)).Decode(out); err != nil {
 		return fmt.Errorf("decode: %w", err)
 	}
-	if _, err := s.mc.InsertOne(ctx, struct {
-		URL        string          `json:"url"`
-		StatusCode int             `json:"status_code"`
-		Response   json.RawMessage `json:"response"`
-	}{res.Request.URL.String(), res.StatusCode, buf.Bytes()}); err != nil {
+	if _, err := s.mc.InsertOne(ctx, bson.D{
+		{Key: "url", Value: res.Request.URL.String()},
+		{Key: "statusCode", Value: res.StatusCode},
+		{Key: "response", Value: bson.Raw(buf.Bytes())},
+	}); err != nil {
 		return fmt.Errorf("insert one: %w", err)
 	}
 	return nil
